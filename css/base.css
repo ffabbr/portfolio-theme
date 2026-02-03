@@ -1,0 +1,171 @@
+/* ==========================================================================
+   CSS Variables
+   ========================================================================== */
+
+:root {
+  --bg-color: #fffefa;
+  --card-color: #e8e5df;
+  --text-primary: #1a1a1a;
+  --text-secondary: #9a9590;
+  --text-muted: #b5b0a8;
+  --white: #ffffff;
+  --black: #1a1a1a;
+  --ring-color: #c8c4bc;
+  --border-radius: 16px;
+  --border-radius-sm: 20px;
+  --max-width: 1440px;
+  --padding-x: 64px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #141414;
+    --card-color: #1f1f1f;
+    --text-primary: #f5f2ed;
+    --text-secondary: #8a8580;
+    --text-muted: #5a5550;
+    --white: #f5f2ed;
+    --black: #141414;
+    --ring-color: #3a3835;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --padding-x: 20px;
+  }
+}
+
+/* ==========================================================================
+   Reset and Base Styles
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s ease;
+}
+
+a:not(.btn):hover {
+  opacity: 0.7;
+}
+
+a.btn:hover {
+  opacity: 0.9;
+}
+
+a[target="_blank"]::after {
+  content: "↗";
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.85em;
+  line-height: 1;
+  vertical-align: middle;
+  position: relative;
+  top: -0.05em;
+  color: currentColor;
+  opacity: 0.7;
+}
+
+a[target="_blank"]:hover::after {
+  opacity: 1;
+}
+
+ul {
+  list-style: none;
+}
+
+/* WordPress Overrides - Remove unwanted gaps */
+body.app {
+  margin: 0;
+  padding: 0;
+}
+
+body.admin-bar {
+  padding-top: 0;
+}
+
+body.admin-bar .header {
+  top: 0;
+}
+
+@media screen and (max-width: 782px) {
+  body.admin-bar .header {
+    top: 0;
+  }
+}
+
+/* Reset WordPress block editor default margins */
+.wp-block-paragraph:first-child,
+.page-content>p:first-child,
+.page-content>*:first-child,
+.blog-post__content>p:first-child,
+.blog-post__content>*:first-child,
+.project-body>p:first-child,
+.project-body>*:first-child {
+  margin-top: 0;
+}
+
+.wp-block-paragraph:last-child,
+.page-content>p:last-child,
+.page-content>*:last-child {
+  margin-bottom: 0;
+}
+
+/* Remove WordPress emoji and other injected styles gaps */
+img.wp-smiley,
+img.emoji {
+  display: inline !important;
+  border: none !important;
+  box-shadow: none !important;
+  height: 1em !important;
+  width: 1em !important;
+  margin: 0 0.07em !important;
+  vertical-align: -0.1em !important;
+  background: none !important;
+  padding: 0 !important;
+}
+
+/* Ensure no extra space from wp_head/wp_footer */
+#wpadminbar {
+  z-index: 9999;
+}

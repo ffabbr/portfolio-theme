@@ -1,0 +1,42 @@
+/**
+ * Fabian Theme - Block Editor Sidebar Styles
+ */
+
+/* General panel styling */
+.components-panel__body[class*="fabian-"] {
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Ensure proper spacing in panel rows */
+.components-panel__body[class*="fabian-"] .components-base-control {
+    margin-bottom: 16px;
+}
+
+.components-panel__body[class*="fabian-"] .components-base-control:last-child {
+    margin-bottom: 0;
+}
+
+/* TextareaControl styling for monospace fields */
+.components-panel__body[class*="fabian-"] textarea[style*="monospace"] {
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Help text styling */
+.components-panel__body[class*="fabian-"] .components-base-control__help {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #757575;
+}
+
+/* Select control full width */
+.components-panel__body[class*="fabian-"] .components-select-control__input {
+    width: 100%;
+}
+
+/* Input field styling */
+.components-panel__body[class*="fabian-"] .components-text-control__input,
+.components-panel__body[class*="fabian-"] .components-textarea-control__input {
+    width: 100%;
+}

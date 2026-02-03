@@ -1,0 +1,43 @@
+/* ==========================================================================
+   App Layout
+   ========================================================================== */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  flex: 1 0 auto;
+  max-width: var(--max-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--padding-x);
+  overflow-x: hidden;
+}
+
+main:empty {
+  display: none;
+}
+
+main>*:first-child {
+  margin-top: 0;
+}
+
+main>*:last-child {
+  margin-bottom: 0;
+}
+
+.home {
+  overflow: visible;
+}
+
+/* Ensure footer stays at bottom */
+.footer {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}

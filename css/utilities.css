@@ -1,0 +1,243 @@
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+.toc-item-disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   Shared Content Block Styles (for pages and projects)
+   ========================================================================== */
+
+/* Code blocks */
+.page-content pre,
+.page-content .wp-block-code,
+.project-body pre,
+.project-body .wp-block-code {
+  background-color: var(--card-color);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin: 24px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Code Block Pro plugin */
+.page-content .wp-block-kevinbatdorf-code-block-pro,
+.project-body .wp-block-kevinbatdorf-code-block-pro {
+  margin: 24px 0;
+  border-radius: 8px;
+}
+
+.page-content pre.shiki,
+.project-body pre.shiki {
+  width: 0;
+  min-width: 100%;
+  overflow-x: auto;
+}
+
+.page-content pre code,
+.page-content .wp-block-code code,
+.project-body pre code,
+.project-body .wp-block-code code {
+  background: none;
+  padding: 0;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+  font-size: inherit;
+  color: var(--text-primary);
+  white-space: pre;
+  word-wrap: normal;
+  overflow-wrap: normal;
+}
+
+/* Inline code */
+.page-content code,
+.project-body code {
+  background-color: var(--card-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
+  font-size: 0.85em;
+  color: var(--text-primary);
+}
+
+/* Tables */
+.page-content table,
+.page-content .wp-block-table,
+.project-body table,
+.project-body .wp-block-table {
+  width: 100%;
+  max-width: 100%;
+  margin: 24px 0;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;
+}
+
+.page-content .wp-block-table table,
+.project-body .wp-block-table table {
+  display: table;
+  width: 100%;
+}
+
+.page-content th,
+.page-content td,
+.project-body th,
+.project-body td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--ring-color);
+}
+
+.page-content th,
+.project-body th {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.page-content td,
+.project-body td {
+  color: var(--text-secondary);
+}
+
+/* Images */
+.page-content img,
+.page-content .wp-block-image img,
+.project-body img,
+.project-body .wp-block-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.page-content .wp-block-image,
+.project-body .wp-block-image {
+  margin: 24px 0;
+}
+
+.page-content .wp-block-image figcaption,
+.project-body .wp-block-image figcaption {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Embeds and iframes */
+.page-content .wp-block-embed,
+.page-content iframe,
+.project-body .wp-block-embed,
+.project-body iframe {
+  max-width: 100%;
+  margin: 24px 0;
+}
+
+.page-content .wp-block-embed__wrapper,
+.project-body .wp-block-embed__wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+}
+
+.page-content .wp-block-embed__wrapper iframe,
+.project-body .wp-block-embed__wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Videos */
+.page-content video,
+.page-content .wp-block-video video,
+.project-body video,
+.project-body .wp-block-video video {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.page-content .wp-block-video,
+.project-body .wp-block-video {
+  margin: 24px 0;
+}
+
+/* Horizontal rule / separator */
+.page-content hr,
+.page-content .wp-block-separator,
+.project-body hr,
+.project-body .wp-block-separator {
+  border: none;
+  border-top: 1px solid var(--ring-color);
+  margin: 48px 0;
+}
+
+/* Galleries */
+.page-content .wp-block-gallery,
+.project-body .wp-block-gallery {
+  margin: 24px 0;
+  max-width: 100%;
+}
+
+.page-content .wp-block-gallery img,
+.project-body .wp-block-gallery img {
+  border-radius: 8px;
+}
+
+/* Prevent any block from breaking layout */
+.page-content > *,
+.project-body > * {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-content pre,
+  .page-content .wp-block-code,
+  .project-body pre,
+  .project-body .wp-block-code {
+    padding: 16px;
+    font-size: 13px;
+  }
+
+  .page-content .wp-block-kevinbatdorf-code-block-pro,
+  .project-body .wp-block-kevinbatdorf-code-block-pro {
+    margin: 20px 0;
+  }
+
+  .page-content table,
+  .page-content .wp-block-table,
+  .project-body table,
+  .project-body .wp-block-table {
+    font-size: 14px;
+  }
+
+  .page-content th,
+  .page-content td,
+  .project-body th,
+  .project-body td {
+    padding: 8px 12px;
+  }
+}
