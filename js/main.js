@@ -4,7 +4,7 @@
  * @package Fabian_Theme
  */
 
-(function() {
+(function () {
     'use strict';
 
     // =========================================================================
@@ -25,7 +25,7 @@
             lenis = new LenisClass({
                 // Subtle smooth scrolling (still enabled, less "floaty")
                 duration: 0.65,
-                easing: function(t) { return 1 - Math.pow(1 - t, 3); },
+                easing: function (t) { return 1 - Math.pow(1 - t, 3); },
                 smoothWheel: true
             });
 
@@ -65,7 +65,7 @@
             // Progress based on element position in viewport
             const progress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight * 1.2)));
 
-            ellipses.forEach(function(ellipse, i) {
+            ellipses.forEach(function (ellipse, i) {
                 const ry = startRy[i] - (startRy[i] - endRy[i]) * progress;
                 ellipse.setAttribute('ry', ry);
             });
@@ -112,15 +112,15 @@
 
         if (!toggle || !nav) return;
 
-        toggle.addEventListener('click', function() {
+        toggle.addEventListener('click', function () {
             const isOpen = nav.classList.contains('nav--open');
             nav.classList.toggle('nav--open');
             toggle.setAttribute('aria-expanded', !isOpen);
         });
 
         // Close menu when clicking a link
-        nav.querySelectorAll('.nav-link').forEach(function(link) {
-            link.addEventListener('click', function() {
+        nav.querySelectorAll('.nav-link').forEach(function (link) {
+            link.addEventListener('click', function () {
                 nav.classList.remove('nav--open');
                 toggle.setAttribute('aria-expanded', 'false');
             });
@@ -148,8 +148,8 @@
 
     function initTOC() {
         // Desktop TOC links
-        document.querySelectorAll('.blog-post__toc a.toc-link').forEach(function(link) {
-            link.addEventListener('click', function(e) {
+        document.querySelectorAll('.blog-post__toc a.toc-link').forEach(function (link) {
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
                 const id = this.getAttribute('href').slice(1);
                 window.history.pushState(null, '', '#' + id);
@@ -158,8 +158,8 @@
         });
 
         // Mobile TOC links
-        document.querySelectorAll('.blog-post__toc-mobile a.toc-link-mobile').forEach(function(link) {
-            link.addEventListener('click', function(e) {
+        document.querySelectorAll('.blog-post__toc-mobile a.toc-link-mobile').forEach(function (link) {
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
                 const id = this.getAttribute('href').slice(1);
                 const details = this.closest('details');
@@ -180,7 +180,7 @@
             scrollToId(id);
         }
 
-        window.addEventListener('hashchange', function() {
+        window.addEventListener('hashchange', function () {
             requestAnimationFrame(scrollToCurrentHash);
         });
 
@@ -190,160 +190,6 @@
         }
     }
 
-    // =========================================================================
-    // About Page - Scroll-Activated Sections
-    // =========================================================================
-
-    function initAboutPage() {
-        const aboutPage = document.querySelector('.about-page');
-        const scrollContainer = document.querySelector('.about-scroll-container');
-        const sections = document.querySelectorAll('.about-section');
-        const progressBar = document.querySelector('.scroll-progress-bar');
-        const contextImages = document.querySelectorAll('.context-image[data-parallax]');
-
-        if (!aboutPage || !sections.length) return;
-
-        // Make sure GSAP and ScrollTrigger are available
-        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-            initAboutPageFallback();
-            return;
-        }
-
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Track scroll state for progress bar visibility
-        let scrollTimeout;
-        window.addEventListener('scroll', function() {
-            aboutPage.classList.add('scrolling');
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(function() {
-                aboutPage.classList.remove('scrolling');
-            }, 1500);
-        });
-
-        // Create ScrollTrigger for each section
-        sections.forEach(function(section, index) {
-            ScrollTrigger.create({
-                trigger: section,
-                start: 'top 70%',
-                end: 'bottom 30%',
-                onEnter: function() {
-                    activateSection(index);
-                },
-                onEnterBack: function() {
-                    activateSection(index);
-                },
-                onLeave: function() {
-                    if (index === sections.length - 1) {
-                        // Keep last section active when scrolling past
-                    } else {
-                        deactivateSection(index);
-                    }
-                },
-                onLeaveBack: function() {
-                    if (index === 0) {
-                        // Keep first section looking normal when scrolling back up
-                    } else {
-                        deactivateSection(index);
-                    }
-                }
-            });
-        });
-
-        // Activate first section by default after a short delay
-        setTimeout(function() {
-            activateSection(0);
-        }, 300);
-
-        function activateSection(index) {
-            sections.forEach(function(s, i) {
-                if (i === index) {
-                    s.classList.add('is-active');
-                } else {
-                    s.classList.remove('is-active');
-                }
-            });
-
-            // Update progress bar
-            if (progressBar) {
-                var progress = ((index + 1) / sections.length) * 100;
-                progressBar.style.height = progress + '%';
-            }
-        }
-
-        function deactivateSection(index) {
-            sections[index].classList.remove('is-active');
-        }
-
-        // Parallax effect for context images
-        if (contextImages.length) {
-            contextImages.forEach(function(img) {
-                var parallaxFactor = parseFloat(img.dataset.parallax) || 0.1;
-
-                gsap.to(img, {
-                    y: function() {
-                        return parallaxFactor * 150;
-                    },
-                    ease: 'none',
-                    scrollTrigger: {
-                        trigger: img.closest('.about-section'),
-                        start: 'top bottom',
-                        end: 'bottom top',
-                        scrub: 1
-                    }
-                });
-            });
-        }
-
-        // Animate annotation paths on scroll
-        var annotations = document.querySelectorAll('.annotation');
-        annotations.forEach(function(annotation) {
-            var path = annotation.querySelector('.annotation-path');
-            if (!path) return;
-
-            var pathLength = path.getTotalLength ? path.getTotalLength() : 1000;
-            path.style.strokeDasharray = pathLength;
-            path.style.strokeDashoffset = pathLength;
-        });
-    }
-
-    // Fallback for when GSAP isn't available
-    function initAboutPageFallback() {
-        var sections = document.querySelectorAll('.about-section');
-        var progressBar = document.querySelector('.scroll-progress-bar');
-
-        if (!sections.length) return;
-
-        function checkSections() {
-            var windowHeight = window.innerHeight;
-            var scrollTop = window.scrollY;
-            var documentHeight = document.documentElement.scrollHeight - windowHeight;
-            var scrollProgress = (scrollTop / documentHeight) * 100;
-
-            if (progressBar) {
-                progressBar.style.height = scrollProgress + '%';
-            }
-
-            sections.forEach(function(section) {
-                var rect = section.getBoundingClientRect();
-                var sectionMiddle = rect.top + rect.height / 2;
-
-                if (sectionMiddle > windowHeight * 0.3 && sectionMiddle < windowHeight * 0.7) {
-                    section.classList.add('is-active');
-                } else {
-                    section.classList.remove('is-active');
-                }
-            });
-        }
-
-        window.addEventListener('scroll', checkSections);
-        checkSections();
-
-        // Activate first section
-        setTimeout(function() {
-            if (sections[0]) sections[0].classList.add('is-active');
-        }, 300);
-    }
 
     // =========================================================================
     // Photography Gallery (GSAP)
@@ -366,7 +212,7 @@
         if (!foldersView || !folders.length) return;
 
         // Trigger entry animation
-        setTimeout(function() {
+        setTimeout(function () {
             foldersView.classList.add('loaded');
         }, 100);
 
@@ -377,8 +223,8 @@
 
         gsap.registerPlugin(ScrollTrigger);
 
-        folders.forEach(function(folder) {
-            folder.addEventListener('click', function() {
+        folders.forEach(function (folder) {
+            folder.addEventListener('click', function () {
                 if (activeFolder) return;
 
                 const collectionId = folder.dataset.collectionId;
@@ -420,7 +266,7 @@
                 closeBtn.addEventListener('click', closeFolder);
             }
 
-            setTimeout(function() {
+            setTimeout(function () {
                 folderState = 'open';
                 window.scrollTo(0, 0);
                 initGSAPSlider(collection);
@@ -432,7 +278,7 @@
 
             // Background images
             html += '<div class="active-slide-bg">';
-            collection.photos.forEach(function(photo, index) {
+            collection.photos.forEach(function (photo, index) {
                 const bgUrl = photo.medium || photo.large || photo.full;
                 html += '<div class="bg-image" style="background-image: url(' + bgUrl + '); opacity: ' + (index === 0 ? 1 : 0) + ';"></div>';
             });
@@ -440,7 +286,7 @@
 
             // Slider
             html += '<div class="gsap-slider">';
-            collection.photos.forEach(function(photo, index) {
+            collection.photos.forEach(function (photo, index) {
                 const isLeft = index % 2 === 0;
                 const imgUrl = photo.large || photo.full || photo.medium;
                 html += '<div class="gsap-slide" style="left: ' + (isLeft ? '35%' : '65%') + ';">';
@@ -474,7 +320,7 @@
             const totalPhotos = collection.photos.length;
 
             // Set initial Z positions
-            slides.forEach(function(slide, index) {
+            slides.forEach(function (slide, index) {
                 const initialZ = -index * zSpacing;
                 slide.dataset.initialZ = initialZ;
                 slide.style.transform = 'translateX(-50%) translateY(-50%) translateZ(' + initialZ + 'px)';
@@ -494,11 +340,11 @@
                 start: 'top top',
                 end: 'bottom bottom',
                 scrub: 0.5,
-                onUpdate: function(self) {
+                onUpdate: function (self) {
                     const progress = self.progress;
                     const zIncrement = progress * (totalPhotos * zSpacing);
 
-                    slides.forEach(function(slide, index) {
+                    slides.forEach(function (slide, index) {
                         const initialZ = parseFloat(slide.dataset.initialZ);
                         const currentZ = initialZ + zIncrement;
 
@@ -543,7 +389,7 @@
             folderState = 'closing';
             foldersView.classList.add('is-closing');
 
-            setTimeout(function() {
+            setTimeout(function () {
                 folderState = 'closed';
                 activeFolder = null;
                 foldersView.classList.remove('has-active', 'is-closing');
@@ -564,7 +410,6 @@
         initProjectParallax();
         initMobileMenu();
         initTOC();
-        initAboutPage();
         initPhotographyGallery();
     }
 

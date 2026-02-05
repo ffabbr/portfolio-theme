@@ -95,51 +95,102 @@ class Fabian_Nav_Walker extends Walker_Nav_Menu
 }
 
 /**
- * Enqueue scripts and styles
+ * Enqueue scripts and styles - Optimized with bundled CSS and conditional loading
  */
 function fabian_theme_scripts()
 {
     $theme_uri = get_template_directory_uri();
     $theme_path = get_template_directory();
 
-    // Modular frontend CSS
-    $styles = array(
-        'fabian-theme-base' => 'css/base.css',
-        'fabian-theme-layout' => 'css/layout.css',
-        'fabian-theme-header' => 'css/header.css',
-        'fabian-theme-hero' => 'css/hero.css',
-        'fabian-theme-buttons' => 'css/buttons.css',
-        'fabian-theme-projects' => 'css/projects.css',
-        'fabian-theme-photography-home' => 'css/photography-home.css',
-        'fabian-theme-footer' => 'css/footer.css',
-        'fabian-theme-pagination' => 'css/pagination.css',
-        'fabian-theme-pages' => 'css/pages.css',
-        'fabian-theme-project' => 'css/project.css',
-        'fabian-theme-writing' => 'css/writing.css',
-        'fabian-theme-blog' => 'css/blog.css',
-        'fabian-theme-category-archive' => 'css/category-archive.css',
-        'fabian-theme-photography-immersive' => 'css/photography-immersive.css',
-        'fabian-theme-utilities' => 'css/utilities.css',
+    // Choose between minified and original files
+    $suffix = (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
+
+    // Helper function to get file version
+    $get_version = function ($rel_path) use ($theme_path) {
+        $file = trailingslashit($theme_path) . $rel_path;
+        return file_exists($file) ? filemtime($file) : '1.0.0';
+    };
+
+    // ==========================================================================
+    // CORE BUNDLE - Loaded on ALL pages
+    // Contains: base, layout, header, footer, buttons, pages, utilities, pagination
+    // ==========================================================================
+    $core_css = "css/core{$suffix}.css";
+    wp_enqueue_style(
+        'fabian-theme-core',
+        trailingslashit($theme_uri) . $core_css,
+        array(),
+        $get_version($core_css)
     );
 
-    // Enqueue with base dependency to preserve cascade
-    foreach ($styles as $handle => $rel_path) {
-        $deps = $handle === 'fabian-theme-base' ? array() : array('fabian-theme-base');
-        $file = trailingslashit($theme_path) . $rel_path;
-        $ver = file_exists($file) ? filemtime($file) : '1.0.0';
-        wp_enqueue_style($handle, trailingslashit($theme_uri) . $rel_path, $deps, $ver);
+    // ==========================================================================
+    // CONDITIONAL CSS BUNDLES - Load only what's needed per page
+    // ==========================================================================
+
+    // HOME BUNDLE - Front page only
+    // Contains: hero, projects, photography-home
+    if (is_front_page()) {
+        $home_css = "css/home{$suffix}.css";
+        wp_enqueue_style(
+            'fabian-theme-home',
+            trailingslashit($theme_uri) . $home_css,
+            array('fabian-theme-core'),
+            $get_version($home_css)
+        );
     }
 
-    // Local fonts - Manrope + Caveat (for handwritten annotations)
-    $fonts_file = trailingslashit($theme_path) . 'fonts/fonts.css';
-    $fonts_ver = file_exists($fonts_file) ? filemtime($fonts_file) : '1.0.0';
-    wp_enqueue_style('fabian-theme-fonts', trailingslashit($theme_uri) . 'fonts/fonts.css', array(), $fonts_ver);
+    // BLOG BUNDLE - Blog posts and archives
+    // Contains: blog, category-archive, writing
+    if (
+        is_singular('post') ||
+        is_category() ||
+        is_tag() ||
+        (is_archive() && !is_post_type_archive('project') && !is_post_type_archive('photography')) ||
+        is_page_template('page-writing.php') ||
+        is_home()
+    ) {
+        $blog_css = "css/blog{$suffix}.css";
+        wp_enqueue_style(
+            'fabian-theme-blog',
+            trailingslashit($theme_uri) . $blog_css,
+            array('fabian-theme-core'),
+            $get_version($blog_css)
+        );
+    }
+
+    // PROJECT BUNDLE - Single project pages and project archive
+    // Contains: project
+    if (is_singular('project') || is_post_type_archive('project')) {
+        $project_css = "css/project{$suffix}.css";
+        wp_enqueue_style(
+            'fabian-theme-project',
+            trailingslashit($theme_uri) . $project_css,
+            array('fabian-theme-core'),
+            $get_version($project_css)
+        );
+    }
+
+    // PHOTOGRAPHY BUNDLE - Photography template only
+    // Contains: photography-immersive
+    if (is_page_template('template-photography.php') || is_tax('photo_collection')) {
+        $photography_css = "css/photography{$suffix}.css";
+        wp_enqueue_style(
+            'fabian-theme-photography',
+            trailingslashit($theme_uri) . $photography_css,
+            array('fabian-theme-core'),
+            $get_version($photography_css)
+        );
+    }
+
+    // ==========================================================================
+    // JAVASCRIPT
+    // ==========================================================================
 
     // Lenis smooth scroll (local) - loaded on all pages
     wp_enqueue_script('lenis', trailingslashit($theme_uri) . 'js/vendor/lenis.min.js', array(), '1.1.13', true);
 
-    // Check if we need GSAP (only on About page and Photography template)
-    $needs_gsap = is_page_template('page-about.php') || is_page('about') || is_page_template('template-photography.php');
+    // Check if we need GSAP (only on Photography template)
+    $needs_gsap = is_page_template('template-photography.php');
 
     // Main script dependencies
     $main_deps = array('lenis');
@@ -152,7 +203,8 @@ function fabian_theme_scripts()
     }
 
     // Main theme script
-    wp_enqueue_script('fabian-theme-main', trailingslashit($theme_uri) . 'js/main.js', $main_deps, '1.0.0', true);
+    $main_js = "js/main{$suffix}.js";
+    wp_enqueue_script('fabian-theme-main', trailingslashit($theme_uri) . $main_js, $main_deps, $get_version($main_js), true);
 }
 add_action('wp_enqueue_scripts', 'fabian_theme_scripts');
 
@@ -773,6 +825,6 @@ function fabian_block_editor_overrides()
         }
     ';
     // Attach overrides to base stylesheet to ensure availability
-    wp_add_inline_style('fabian-theme-base', $custom_css);
+    wp_add_inline_style('fabian-theme-core', $custom_css);
 }
 add_action('wp_enqueue_scripts', 'fabian_block_editor_overrides', 20);
