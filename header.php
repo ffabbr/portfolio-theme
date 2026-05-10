@@ -86,7 +86,7 @@ if ( is_singular( 'project' ) ) {
 
 <?php
 // Determine main content classes based on page type
-$main_classes = array();
+$main_classes = array( 'transition-main' );
 
 if ( is_front_page() ) {
     $main_classes[] = 'home';
@@ -109,4 +109,4 @@ if ( is_front_page() ) {
 
 $main_class_string = ! empty( $main_classes ) ? ' class="' . esc_attr( implode( ' ', $main_classes ) ) . '"' : '';
 ?>
-<main<?php echo $main_class_string; ?>>
+<main id="swup" data-swup<?php echo $main_class_string; ?>>

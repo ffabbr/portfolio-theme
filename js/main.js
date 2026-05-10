@@ -50,6 +50,7 @@
                 easing: function (t) { return 1 - Math.pow(1 - t, 3); },
                 smoothWheel: true
             });
+            window.__lenis = lenis;
 
             function raf(time) {
                 lenis.raf(time);
@@ -537,7 +538,7 @@
                 '<svg class="cmdk-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>' +
                 '<input type="text" class="cmdk-input" placeholder="Search pages, posts, actions..." autocomplete="off" spellcheck="false" aria-label="Search">' +
             '</div>' +
-            '<ul class="cmdk-list" role="listbox" data-lenis-prevent></ul>';
+            '<ul class="cmdk-list" role="listbox" aria-label="Search results" data-lenis-prevent></ul>';
 
         document.body.appendChild(overlay);
         document.body.appendChild(dialog);
@@ -646,7 +647,11 @@
             }
             if (item.url) {
                 close();
-                window.location.href = item.url;
+                if (window.__swup && typeof window.__swup.navigate === 'function') {
+                    window.__swup.navigate(item.url);
+                } else {
+                    window.location.href = item.url;
+                }
             }
         }
 

@@ -84,7 +84,7 @@ get_header();
                 </details>
             <?php endif; ?>
 
-            <a href="<?php echo esc_url(home_url('/writing/')); ?>" class="blog-post__all-posts"><span class="arrow-left">&larr;</span> All posts</a>
+            <a href="<?php echo esc_url(home_url('/writing/')); ?>" class="blog-post__all-posts" data-restore-scroll><span class="arrow-left">&larr;</span> All posts</a>
         </header>
 
         <div class="blog-post__content">

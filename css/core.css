@@ -5,8 +5,9 @@
  * @package Fabian_Theme
  */
 
+/* Native view transitions disabled — Swup handles transitions */
 @view-transition {
-    navigation: auto;
+    navigation: none;
 }
 
 /* ==========================================================================
@@ -1100,11 +1101,12 @@ main>*:last-child {
 
 .cmdk-dialog {
     position: fixed;
-    top: 20vh;
+    top: clamp(80px, 16vh, 160px);
     left: 50%;
     transform: translateX(-50%) scale(0.98);
     width: min(520px, calc(100vw - 32px));
-    max-height: 40vh;
+    min-height: min(280px, calc(100vh - 96px));
+    max-height: min(380px, calc(100vh - 96px));
     background: var(--cmdk-bg);
     color: var(--cmdk-text);
     border: 1px solid var(--cmdk-border);
@@ -1206,9 +1208,12 @@ main>*:last-child {
 
 .cmdk-item__title {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-weight: 500;
+    line-height: 1.5;
 }
 
 .cmdk-item__type {
@@ -1226,7 +1231,38 @@ main>*:last-child {
 
 @media (max-width: 600px) {
     .cmdk-dialog {
-        top: 10vh;
-        max-height: 80vh;
+        top: 48px;
+    }
+}
+
+
+/* ==========================================================================
+   Page transitions (Swup)
+   ========================================================================== */
+
+.transition-main {
+    transition-property: opacity, transform;
+    transition-duration: 220ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Out: pure fade, fast. Specificity boosted with html.is-changing
+   so it overrides any other class swup adds during the leave phase. */
+html.is-changing.is-leaving .transition-main {
+    opacity: 0;
+    transition-duration: 120ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .transition-main,
+    html.is-leaving .transition-main,
+    html.is-rendering .transition-main,
+    html.is-animating .transition-main {
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
     }
 }
