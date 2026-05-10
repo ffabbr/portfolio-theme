@@ -138,15 +138,16 @@ foreach ($swup_files as $file) {
     $path = $theme_dir . '/js/vendor/' . $file;
     $url = $theme_uri . '/js/vendor/' . $file;
     $ver = file_exists($path) ? (string) filemtime($path) : '0';
-    echo '<script src="' . esc_url($url) . '?v=' . esc_attr($ver) . '"></script>' . "\n";
+    echo '<script defer src="' . esc_url($url) . '?v=' . esc_attr($ver) . '"></script>' . "\n";
 }
 ?>
 <script>
-    (function () {
+    function __initSwupApp() {
         if (typeof window.Swup === 'undefined') {
             console.error('[swup] failed to load');
             return;
         }
+        (function () {
 
         const OUT_MS = 120;
         const IN_MS = 220;
@@ -239,7 +240,14 @@ foreach ($swup_files as $file) {
             } catch (e) {}
             updateActiveNav();
         });
-    })();
+        })();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', __initSwupApp);
+    } else {
+        __initSwupApp();
+    }
 </script>
 
 <?php wp_footer(); ?>
