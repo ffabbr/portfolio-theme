@@ -220,6 +220,15 @@ foreach ($swup_files as $file) {
             }
         });
 
+        function updateActiveNav() {
+            const here = window.location.pathname.replace(/\/+$/, '') || '/';
+            document.querySelectorAll('.nav-link').forEach((link) => {
+                let href = '';
+                try { href = new URL(link.href).pathname.replace(/\/+$/, '') || '/'; } catch (e) {}
+                link.classList.toggle('active', href === here);
+            });
+        }
+
         swup.hooks.on('page:view', () => {
             try {
                 const t = localStorage.getItem('fabian-theme');
@@ -228,6 +237,7 @@ foreach ($swup_files as $file) {
                     document.documentElement.classList.add('theme-' + t);
                 }
             } catch (e) {}
+            updateActiveNav();
         });
     })();
 </script>
