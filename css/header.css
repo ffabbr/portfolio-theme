@@ -1,0 +1,132 @@
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.header {
+  padding: 24px var(--padding-x);
+  max-width: var(--max-width);
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 100;
+  transition: color 0.3s ease;
+}
+
+.header--transparent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  max-width: none;
+  background: transparent;
+}
+
+.header--dark .logo,
+.header--dark .nav-link,
+.header--dark .email,
+.header--dark .mobile-menu-toggle {
+  color: var(--text-primary);
+}
+
+.header--light .logo,
+.header--light .nav-link,
+.header--light .email,
+.header--light .mobile-menu-toggle {
+  color: var(--white);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.nav {
+  display: flex;
+  gap: 32px;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-menu-toggle__bar {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+  border-radius: 0;
+}
+
+.nav-link {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.nav-link.active {
+  font-weight: 500;
+}
+
+.email {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    position: relative;
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+
+  .nav {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    right: 0;
+    z-index: 200;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background: var(--card-color);
+    border-radius: 0;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .nav.nav--open {
+    display: flex;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 6px 0;
+  }
+
+  .email {
+    display: none;
+  }
+}

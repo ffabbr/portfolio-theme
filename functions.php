@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once get_template_directory() . '/inc/talks.php';
+
 /**
  * Theme setup
  */
@@ -170,6 +172,21 @@ function fabian_theme_scripts()
         );
     }
 
+    // TALKS BUNDLE - Talks archive, single talk, and Talks page template
+    if (
+        is_singular('talk') ||
+        is_post_type_archive('talk') ||
+        is_page_template('template-talks.php')
+    ) {
+        $talks_css = "css/talks{$suffix}.css";
+        wp_enqueue_style(
+            'fabian-theme-talks',
+            trailingslashit($theme_uri) . $talks_css,
+            array('fabian-theme-core'),
+            $get_version($talks_css)
+        );
+    }
+
     // PHOTOGRAPHY BUNDLE - Photography template only
     // Contains: photography-immersive
     if (is_page_template('template-photography.php') || is_tax('photo_collection')) {
@@ -205,6 +222,36 @@ function fabian_theme_scripts()
     // Main theme script
     $main_js = "js/main{$suffix}.js";
     wp_enqueue_script('fabian-theme-main', trailingslashit($theme_uri) . $main_js, $main_deps, $get_version($main_js), true);
+
+    // Command palette: expose a searchable index of pages, posts, projects, talks
+    $cmdk_items = array();
+
+    $cmdk_query = new WP_Query(array(
+        'post_type'      => array('page', 'post', 'project', 'talk'),
+        'post_status'    => 'publish',
+        'posts_per_page' => 500,
+        'orderby'        => 'date',
+        'order'          => 'DESC',
+        'no_found_rows'  => true,
+    ));
+    if ($cmdk_query->have_posts()) {
+        while ($cmdk_query->have_posts()) {
+            $cmdk_query->the_post();
+            $type = get_post_type();
+            $type_label = $type === 'post' ? 'Post' : ($type === 'page' ? 'Page' : ucfirst($type));
+            $cmdk_items[] = array(
+                'type'  => $type_label,
+                'title' => html_entity_decode(get_the_title(), ENT_QUOTES),
+                'url'   => get_permalink(),
+            );
+        }
+        wp_reset_postdata();
+    }
+
+    wp_localize_script('fabian-theme-main', 'fabianCmdK', array(
+        'items' => $cmdk_items,
+        'home'  => home_url('/'),
+    ));
 }
 add_action('wp_enqueue_scripts', 'fabian_theme_scripts');
 

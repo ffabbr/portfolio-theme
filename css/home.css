@@ -2,6 +2,9 @@
  * Home Bundle CSS - Front page only
  * 
  * Contains: hero, projects, photography-home
+ * to minimize: 
+ * npx clean-css-cli css/home.css -o css/home.min.css
+ *
  * @package Fabian_Theme
  */
 
@@ -77,6 +80,122 @@
         font-size: 25px;
     }
 }
+
+
+
+/* ==========================================================================
+   About me Section
+   ========================================================================== */
+
+.blog-post__content {
+    font-size: 18px;
+    color: var(--text-secondary);
+    color: color-mix(in srgb, var(--text-primary) 65%, var(--text-secondary));
+    line-height: 1.8;
+    max-width: 100%;
+    justify-self: end;
+}
+
+.blog-post__content p {
+    margin-bottom: 24px;
+}
+
+.blog-post__content h2 {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-top: 48px;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+    scroll-margin-top: 100px;
+}
+
+.blog-post__content h2:first-child {
+    margin-top: 0;
+}
+
+.blog-post__content a {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1.2px !important;
+    text-decoration-color: rgb(182, 182, 182) !important;
+}
+
+.blog-post__content ul,
+.blog-post__content ol {
+    margin-bottom: 24px;
+    padding-left: 24px;
+    list-style-position: outside;
+}
+
+.blog-post__content ul {
+    list-style-type: disc;
+}
+
+.blog-post__content ol {
+    list-style-type: decimal;
+}
+
+.blog-post__content li {
+    margin-bottom: 8px;
+}
+
+.blog-post__content blockquote {
+    border-left: 3px solid var(--text-muted);
+    padding-left: 20px;
+    margin: 32px 0;
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+    .blog-post {
+        grid-template-columns: 1fr;
+        padding: 40px 0;
+        gap: 24px;
+        overflow-x: hidden;
+    }
+
+    .blog-post__header {
+        position: static;
+        margin-bottom: 24px;
+        min-width: 0;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    .blog-post__content {
+        max-width: 100%;
+        justify-self: start;
+        min-width: 0;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    .blog-post__title {
+        font-size: 32px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    .blog-post__toc {
+        display: none;
+    }
+
+    .blog-post__toc-mobile {
+        display: block;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-post__title {
+        font-size: 28px;
+    }
+}
+
+
+
 
 /* ==========================================================================
    Projects Section (from projects.css)

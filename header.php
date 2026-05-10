@@ -32,6 +32,18 @@ if ( is_singular( 'project' ) ) {
     <meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="profile" href="https://gmpg.org/xfn/11">
+    <script>
+        // Apply persisted theme before paint to avoid FOUC.
+        (function () {
+            try {
+                var t = localStorage.getItem('fabian-theme');
+                if (t === 'light' || t === 'dark') {
+                    document.documentElement.setAttribute('data-theme', t);
+                    document.documentElement.classList.add('theme-' + t);
+                }
+            } catch (e) {}
+        })();
+    </script>
     <?php wp_head(); ?>
 </head>
 
@@ -89,8 +101,8 @@ if ( is_front_page() ) {
 } elseif ( is_home() || is_page_template( 'page-writing.php' ) || ( is_archive() && ! is_post_type_archive( 'project' ) ) ) {
     $main_classes[] = 'page';
     $main_classes[] = 'writing';
-} elseif ( is_singular( 'post' ) || is_singular( 'project' ) ) {
-    // Single posts/projects use article wrappers, no main class needed
+} elseif ( is_singular( 'post' ) || is_singular( 'project' ) || is_singular( 'talk' ) ) {
+    // Single posts/projects/talks use article wrappers, no main class needed
 } else {
     $main_classes[] = 'page';
 }

@@ -1,9 +1,13 @@
 /**
  * Core Bundle CSS - Loaded on ALL pages
- * 
+ *
  * Contains: fonts, base, layout, header, footer, buttons, pages, utilities, pagination
  * @package Fabian_Theme
  */
+
+@view-transition {
+    navigation: auto;
+}
 
 /* ==========================================================================
    Fonts
@@ -200,6 +204,7 @@
    ========================================================================== */
 
 :root {
+    color-scheme: light;
     --bg-color: #fffefa;
     --card-color: #e8e5df;
     --text-primary: #1a1a1a;
@@ -215,7 +220,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]):not(.theme-light) {
+        color-scheme: dark;
         --bg-color: #141414;
         --card-color: #1f1f1f;
         --text-primary: #f5f2ed;
@@ -225,6 +231,24 @@
         --black: #141414;
         --ring-color: #3a3835;
     }
+}
+
+:root[data-theme="dark"],
+:root.theme-dark {
+    color-scheme: dark;
+    --bg-color: #141414;
+    --card-color: #1f1f1f;
+    --text-primary: #f5f2ed;
+    --text-secondary: #8a8580;
+    --text-muted: #5a5550;
+    --white: #f5f2ed;
+    --black: #141414;
+    --ring-color: #3a3835;
+}
+
+:root[data-theme="light"],
+:root.theme-light {
+    color-scheme: light;
 }
 
 @media (max-width: 768px) {
@@ -301,10 +325,21 @@ a[target="_blank"]::after {
     top: -0.05em;
     color: currentColor;
     opacity: 0.7;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
 }
 
 a[target="_blank"]:hover::after {
     opacity: 1;
+    transform: translate(4px, -4px);
+}
+
+.arrow-left {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+a:hover .arrow-left {
+    transform: translateX(-4px);
 }
 
 ul {
@@ -386,7 +421,7 @@ main {
     width: 100%;
     margin: 0 auto;
     padding: 0 var(--padding-x);
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
 }
 
 main:empty {
@@ -994,5 +1029,204 @@ main>*:last-child {
     .project-body th,
     .project-body td {
         padding: 8px 12px;
+    }
+}
+/* ==========================================================================
+   Command Palette (Cmd+K)
+   ========================================================================== */
+
+/* Cmdk theme variables — change with the site theme. */
+:root {
+    --cmdk-bg: #fffefa;
+    --cmdk-text: #1a1a1a;
+    --cmdk-border: #e5e5e5;
+    --cmdk-divider: #e5e5e5;
+    --cmdk-row-hover: #f5f5f5;
+    --cmdk-input-bg: #f5f5f5;
+    --cmdk-input-border: #e5e5e5;
+    --cmdk-input-icon: #a3a3a3;
+    --cmdk-input-text: #737373;
+    --cmdk-input-placeholder: #a3a3a3;
+    --cmdk-section-label: #a1a0a0;
+}
+
+:root[data-theme="dark"],
+:root.theme-dark {
+    --cmdk-bg: #171717;
+    --cmdk-text: #fafafa;
+    --cmdk-border: #212121;
+    --cmdk-divider: #262626;
+    --cmdk-row-hover: #262626;
+    --cmdk-input-bg: #212121;
+    --cmdk-input-border: #2b2b2b;
+    --cmdk-input-icon: #616161;
+    --cmdk-input-text: #8d8d8d;
+    --cmdk-input-placeholder: #616161;
+    --cmdk-section-label: #a1a0a0;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]):not(.theme-light) {
+        --cmdk-bg: #171717;
+        --cmdk-text: #fafafa;
+        --cmdk-border: #212121;
+        --cmdk-divider: #262626;
+        --cmdk-row-hover: #262626;
+        --cmdk-input-bg: #212121;
+        --cmdk-input-border: #2b2b2b;
+        --cmdk-input-icon: #616161;
+        --cmdk-input-text: #8d8d8d;
+        --cmdk-input-placeholder: #616161;
+        --cmdk-section-label: #a1a0a0;
+    }
+}
+
+.cmdk-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.cmdk-overlay[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.cmdk-dialog {
+    position: fixed;
+    top: 20vh;
+    left: 50%;
+    transform: translateX(-50%) scale(0.98);
+    width: min(520px, calc(100vw - 32px));
+    max-height: 40vh;
+    background: var(--cmdk-bg);
+    color: var(--cmdk-text);
+    border: 1px solid var(--cmdk-border);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cmdk-dialog[data-open="true"] {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+    pointer-events: auto;
+}
+
+.cmdk-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 10px;
+    padding: 5px 9px;
+    background: var(--cmdk-input-bg);
+    border: 1px solid var(--cmdk-input-border);
+    border-radius: 10px;
+}
+
+.cmdk-input-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--cmdk-input-icon);
+    flex-shrink: 0;
+}
+
+.cmdk-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cmdk-input-text);
+}
+
+.cmdk-input::placeholder {
+    color: var(--cmdk-input-placeholder);
+}
+
+.cmdk-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 8px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.cmdk-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cmdk-section-label);
+    padding: 4px 14px 4px;
+}
+
+.cmdk-group-label:not(:first-child) {
+    border-top: 1px solid var(--cmdk-divider);
+    margin-top: 4px;
+}
+
+.cmdk-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 30px;
+    padding: 0 9px;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--cmdk-text);
+    border-radius: 8px;
+    margin: 1px 10px;
+    user-select: none;
+}
+
+.cmdk-item[data-selected="true"] {
+    background: var(--cmdk-row-hover);
+}
+
+.cmdk-item__icon {
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+    flex-shrink: 0;
+}
+
+.cmdk-item__title {
+    flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.cmdk-item__type {
+    font-size: 12px;
+    color: var(--cmdk-section-label);
+    flex-shrink: 0;
+}
+
+.cmdk-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--cmdk-section-label);
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .cmdk-dialog {
+        top: 10vh;
+        max-height: 80vh;
     }
 }

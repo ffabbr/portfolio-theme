@@ -26,7 +26,7 @@ get_header();
     $categories = get_the_category();
     ?>
 
-    <article class="blog-post">
+    <article class="blog-post" style="view-transition-name: post-<?php the_ID(); ?>;">
         <header class="blog-post__header">
             <h1 class="blog-post__title">
                 <?php the_title(); ?> <?php
@@ -84,7 +84,7 @@ get_header();
                 </details>
             <?php endif; ?>
 
-            <a href="<?php echo esc_url(home_url('/writing/')); ?>" class="blog-post__all-posts">&larr; All posts</a>
+            <a href="<?php echo esc_url(home_url('/writing/')); ?>" class="blog-post__all-posts"><span class="arrow-left">&larr;</span> All posts</a>
         </header>
 
         <div class="blog-post__content">
@@ -97,7 +97,7 @@ get_header();
                 <nav class="post-navigation">
                     <?php if ($prev_post): ?>
                         <a href="<?php echo esc_url(get_permalink($prev_post)); ?>" class="post-navigation__link post-navigation__link--prev">
-                            <span class="post-navigation__arrow">&larr;</span>
+                            <span class="post-navigation__arrow arrow-left">&larr;</span>
                             <span class="post-navigation__title"><?php echo esc_html($prev_post->post_title); ?></span>
                         </a>
                     <?php endif; ?>

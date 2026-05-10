@@ -22,7 +22,7 @@ foreach ( $categories as $cat ) {
 }
 ?>
 
-<article class="category-archive__post">
+<article class="category-archive__post" style="view-transition-name: post-<?php the_ID(); ?>;">
     <header class="category-archive__post-header">
         <h2 class="category-archive__post-title">
             <a href="<?php the_permalink(); ?>">

@@ -8,6 +8,28 @@
     'use strict';
 
     // =========================================================================
+    // Archive scroll restore (run synchronously, before Lenis init / paint)
+    // =========================================================================
+
+    const archiveScrollKey = 'fabian-archive-scroll:' + window.location.pathname;
+    const isArchivePage = !!document.querySelector('.writing__posts, .category-archive__posts');
+
+    if (isArchivePage) {
+        const saved = sessionStorage.getItem(archiveScrollKey);
+        if (saved !== null) {
+            sessionStorage.removeItem(archiveScrollKey);
+            const y = parseInt(saved, 10);
+            if (!isNaN(y)) {
+                // Strip any hash so the browser's hash-scroll doesn't fight our restore
+                if (window.location.hash) {
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                }
+                window.scrollTo(0, y);
+            }
+        }
+    }
+
+    // =========================================================================
     // Lenis Smooth Scroll
     // =========================================================================
 
@@ -404,6 +426,288 @@
     // Initialize
     // =========================================================================
 
+    // =========================================================================
+    // Archive scroll memory (Writing / category archives)
+    // =========================================================================
+
+    function initArchiveScrollMemory() {
+        if (isArchivePage) {
+            window.addEventListener('pagehide', function () {
+                sessionStorage.setItem(archiveScrollKey, String(window.scrollY));
+            });
+        }
+
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a[href]');
+            if (!link) return;
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || link.target === '_blank') return;
+            if (isArchivePage) {
+                sessionStorage.setItem(archiveScrollKey, String(window.scrollY));
+            }
+        }, true);
+    }
+
+    // =========================================================================
+    // Command Palette (Cmd+K / Ctrl+K)
+    // =========================================================================
+
+    function initCommandPalette() {
+        const data = window.fabianCmdK || { items: [], home: '/' };
+        const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+
+        // Single theme command: switches to the opposite of the currently resolved theme.
+        function getThemeCommands() {
+            const target = currentResolvedTheme() === 'dark' ? 'light' : 'dark';
+            return [
+                { type: 'Theme', title: 'Use ' + target + ' theme', action: 'theme:' + target, icon: target === 'dark' ? 'moon' : 'sun' }
+            ];
+        }
+
+        function getPinnedPages() {
+            const home = (data.home || '/').replace(/\/?$/, '/');
+            return [
+                { type: 'Pages', title: 'Home', url: home, icon: 'home' },
+                { type: 'Pages', title: 'Writing', url: home + 'writing/', icon: 'writing' }
+            ];
+        }
+
+        const ICONS = {
+            home: '<path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.5v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9"/>',
+            writing: '<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>',
+            sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+            moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+            page: '<path d="M14 2H7a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>',
+            post: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+            project: '<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/>',
+            talk: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/>'
+        };
+
+        const TYPE_FALLBACK_ICON = {
+            'Page': 'page',
+            'Pages': 'page',
+            'Post': 'post',
+            'Project': 'project',
+            'Talk': 'talk',
+            'Theme': 'sun'
+        };
+
+        function iconSvg(name) {
+            const path = ICONS[name];
+            if (!path) return '';
+            return '<svg class="cmdk-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + path + '</svg>';
+        }
+
+        function applyTheme(mode) {
+            try {
+                const root = document.documentElement;
+                root.classList.remove('theme-light', 'theme-dark');
+                if (mode === 'system') {
+                    localStorage.removeItem('fabian-theme');
+                    root.removeAttribute('data-theme');
+                } else {
+                    localStorage.setItem('fabian-theme', mode);
+                    root.setAttribute('data-theme', mode);
+                    root.classList.add('theme-' + mode);
+                }
+            } catch (e) {}
+        }
+
+        function currentResolvedTheme() {
+            const set = document.documentElement.getAttribute('data-theme');
+            if (set) return set;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // Markup
+        const overlay = document.createElement('div');
+        overlay.className = 'cmdk-overlay';
+        overlay.setAttribute('data-open', 'false');
+
+        const dialog = document.createElement('div');
+        dialog.className = 'cmdk-dialog';
+        dialog.setAttribute('role', 'dialog');
+        dialog.setAttribute('aria-modal', 'true');
+        dialog.setAttribute('aria-label', 'Command palette');
+        dialog.setAttribute('data-open', 'false');
+
+        dialog.setAttribute('data-lenis-prevent', '');
+        dialog.innerHTML =
+            '<div class="cmdk-input-wrap">' +
+                '<svg class="cmdk-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>' +
+                '<input type="text" class="cmdk-input" placeholder="Search pages, posts, actions..." autocomplete="off" spellcheck="false" aria-label="Search">' +
+            '</div>' +
+            '<ul class="cmdk-list" role="listbox" data-lenis-prevent></ul>';
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        const input = dialog.querySelector('.cmdk-input');
+        const list = dialog.querySelector('.cmdk-list');
+
+        let visibleItems = [];
+        let selectedIndex = 0;
+
+        function fuzzyMatch(query, text) {
+            if (!query) return true;
+            const q = query.toLowerCase();
+            const t = text.toLowerCase();
+            if (t.indexOf(q) !== -1) return true;
+            // simple subsequence match
+            let i = 0;
+            for (let j = 0; j < t.length && i < q.length; j++) {
+                if (t.charAt(j) === q.charAt(i)) i++;
+            }
+            return i === q.length;
+        }
+
+        function render() {
+            const query = input.value.trim();
+            const pinned = getPinnedPages();
+            const pinnedUrls = {};
+            pinned.forEach(function (p) { pinnedUrls[p.url] = true; });
+            const filteredFromWP = (data.items || []).filter(function (it) { return !pinnedUrls[it.url]; });
+            const allItems = pinned.concat(getThemeCommands()).concat(filteredFromWP);
+            visibleItems = allItems.filter(function (it) { return fuzzyMatch(query, it.title) || fuzzyMatch(query, it.type); });
+            if (!query) {
+                let postCount = 0;
+                visibleItems = visibleItems.filter(function (it) {
+                    if (it.type === 'Post') {
+                        postCount++;
+                        return postCount <= 3;
+                    }
+                    return true;
+                });
+            }
+            selectedIndex = 0;
+
+            if (!visibleItems.length) {
+                list.innerHTML = '<li class="cmdk-empty">No results.</li>';
+                return;
+            }
+
+            // Group by type
+            const groups = {};
+            const order = [];
+            visibleItems.forEach(function (it) {
+                if (!groups[it.type]) { groups[it.type] = []; order.push(it.type); }
+                groups[it.type].push(it);
+            });
+
+            let html = '';
+            let idx = 0;
+            order.forEach(function (type) {
+                html += '<li class="cmdk-group-label" role="presentation">' + escapeHtml(type) + '</li>';
+                groups[type].forEach(function (it) {
+                    const hint = it.hint ? '<span class="cmdk-item__type">' + escapeHtml(it.hint) + '</span>' : '';
+                    const iconName = it.icon || TYPE_FALLBACK_ICON[it.type] || '';
+                    html += '<li class="cmdk-item" role="option" data-index="' + idx + '" data-selected="' + (idx === 0 ? 'true' : 'false') + '">' +
+                        iconSvg(iconName) +
+                        '<span class="cmdk-item__title">' + escapeHtml(it.title) + '</span>' + hint + '</li>';
+                    idx++;
+                });
+            });
+
+            list.innerHTML = html;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        function setSelected(i) {
+            const items = list.querySelectorAll('.cmdk-item');
+            if (!items.length) return;
+            if (i < 0) i = items.length - 1;
+            if (i >= items.length) i = 0;
+            selectedIndex = i;
+            items.forEach(function (el, j) {
+                el.setAttribute('data-selected', j === i ? 'true' : 'false');
+                if (j === i) el.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        function activate(item) {
+            if (!item) return;
+            if (item.action) {
+                if (item.action === 'theme:toggle') {
+                    applyTheme(currentResolvedTheme() === 'dark' ? 'light' : 'dark');
+                } else if (item.action === 'theme:light') {
+                    applyTheme('light');
+                } else if (item.action === 'theme:dark') {
+                    applyTheme('dark');
+                } else if (item.action === 'theme:system') {
+                    applyTheme('system');
+                }
+                close();
+                return;
+            }
+            if (item.url) {
+                close();
+                window.location.href = item.url;
+            }
+        }
+
+        function open() {
+            overlay.setAttribute('data-open', 'true');
+            dialog.setAttribute('data-open', 'true');
+            input.value = '';
+            render();
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+            if (lenis && typeof lenis.stop === 'function') lenis.stop();
+            setTimeout(function () { input.focus(); }, 0);
+        }
+
+        function close() {
+            overlay.setAttribute('data-open', 'false');
+            dialog.setAttribute('data-open', 'false');
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            if (lenis && typeof lenis.start === 'function') lenis.start();
+        }
+
+        function isOpen() { return dialog.getAttribute('data-open') === 'true'; }
+
+        // Events
+        input.addEventListener('input', render);
+
+        dialog.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowDown') { e.preventDefault(); setSelected(selectedIndex + 1); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); setSelected(selectedIndex - 1); }
+            else if (e.key === 'Enter') { e.preventDefault(); activate(visibleItems[selectedIndex]); }
+            else if (e.key === 'Escape') { e.preventDefault(); close(); }
+        });
+
+        list.addEventListener('mousemove', function (e) {
+            const li = e.target.closest('.cmdk-item');
+            if (!li) return;
+            const idx = parseInt(li.getAttribute('data-index'), 10);
+            if (!isNaN(idx) && idx !== selectedIndex) setSelected(idx);
+        });
+
+        list.addEventListener('click', function (e) {
+            const li = e.target.closest('.cmdk-item');
+            if (!li) return;
+            const idx = parseInt(li.getAttribute('data-index'), 10);
+            activate(visibleItems[idx]);
+        });
+
+        overlay.addEventListener('click', close);
+
+        document.addEventListener('keydown', function (e) {
+            const mod = isMac ? e.metaKey : e.ctrlKey;
+            if (mod && (e.key === 'k' || e.key === 'K')) {
+                e.preventDefault();
+                if (isOpen()) close(); else open();
+            } else if (e.key === 'Escape' && isOpen()) {
+                close();
+            }
+        });
+    }
+
     function init() {
         initLenis();
         initRingsAnimation();
@@ -411,6 +715,8 @@
         initMobileMenu();
         initTOC();
         initPhotographyGallery();
+        initArchiveScrollMemory();
+        initCommandPalette();
     }
 
     // Run on DOM ready
